@@ -162,3 +162,37 @@ def crear_dist(datos_scores: pd.DataFrame, puntos_corte: list) -> go.Figure:
                        margin=dict(t=35, b=35, l=55, r=15),
                        plot_bgcolor="rgba(0,0,0,0)")
     return dist
+
+
+def crear_cumdist(datos):
+    datos_orden = datos.sort_values("theta", ignore_index=True).reset_index()
+    cumdist = go.Figure()
+    cumdist.add_trace(go.Scatter(
+        name="Theta",
+        x=datos_orden["index"],
+        y=datos_orden["theta"],
+        mode="lines",
+        marker=dict(color="rgba(250, 250, 255, 40)")))
+    cumdist.add_trace(go.Scatter(
+        name="Límite superior",
+        x=datos_orden["index"],
+        y=datos_orden["lim_sup"],
+        mode="lines",
+        line=dict(width=0),
+        marker=dict(color="rgba(220, 220, 229, 40)"),
+        showlegend=False))
+    cumdist.add_trace(go.Scatter(
+        name="Límite inferior",
+        x=datos_orden["index"],
+        y=datos_orden["lim_inf"],
+        mode="lines",
+        line=dict(width=0),
+        marker=dict(color="rgba(220, 220, 229, 40)"),
+        showlegend=False,
+        fill="tonexty"))
+    cumdist.update_layout(
+        hovermode="x",
+        height=320,
+        margin=dict(t=35, b=35, l=55, r=15),
+        plot_bgcolor="rgba(0,0,0,0)")
+    return cumdist

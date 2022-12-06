@@ -45,8 +45,10 @@ if archivo is not None:
     pay = pc.crear_pay(grupos_conteo)
     
     with tab_file:
-        st.subheader("Resumen de los datos")
+        st.markdown("### Resumen de los puntajes")
         st.dataframe(scores.describe())
+        st.markdown("### Distribución acumulada de los puntajes")
+        st.plotly_chart(pc.crear_cumdist(scores))
 
     with tab_vis:
         st.subheader("Distribución")
