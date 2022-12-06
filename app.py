@@ -17,11 +17,13 @@ if archivo is None:
         st.title("Elige un archivo para iniciar")
         st.subheader("Archivo")
         archivo = tab_file.file_uploader("Elige un archivo con columnas theta y error", type=["csv"])
+        st.markdown(":floppy_disk: [Archivo muestra](https://raw.githubusercontent.com/jboscomendoza/pypuntocorte/main/irt_dummy.csv)")
         if archivo is not None:
             scores = pd.read_csv(archivo)
             scores = pc.crear_intervalos(scores)
             theta_min = scores["theta"].min()
             theta_max = scores["theta"].max()
+        
 
 if archivo is not None:
     st.sidebar.title("Puntos de corte")

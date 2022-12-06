@@ -172,14 +172,14 @@ def crear_cumdist(datos):
         x=datos_orden["index"],
         y=datos_orden["theta"],
         mode="lines",
-        marker=dict(color="rgba(250, 250, 255, 40)")))
+        marker=dict(color="rgba(110, 120, 135, 255)")))
     cumdist.add_trace(go.Scatter(
         name="Límite superior",
         x=datos_orden["index"],
         y=datos_orden["lim_sup"],
         mode="lines",
         line=dict(width=0),
-        marker=dict(color="rgba(220, 220, 229, 40)"),
+        marker=dict(color="rgba(210, 210, 220, 40)"),
         showlegend=False))
     cumdist.add_trace(go.Scatter(
         name="Límite inferior",
@@ -187,7 +187,7 @@ def crear_cumdist(datos):
         y=datos_orden["lim_inf"],
         mode="lines",
         line=dict(width=0),
-        marker=dict(color="rgba(220, 220, 229, 40)"),
+        marker=dict(color="rgba(210, 210, 220, 40)"),
         showlegend=False,
         fill="tonexty"))
     cumdist.update_layout(
