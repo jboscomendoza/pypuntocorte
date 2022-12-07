@@ -164,7 +164,8 @@ def crear_dist(datos_scores: pd.DataFrame, puntos_corte: list) -> go.Figure:
     return dist
 
 
-def crear_cumdist(datos):
+def crear_cumdist(datos: pd.DataFrame) -> go.Figure:
+    """Crea una gráfica de distribución acumulada de puntajes"""
     datos_orden = datos.sort_values("theta", ignore_index=True).reset_index()
     cumdist = go.Figure()
     cumdist.add_trace(go.Scatter(
@@ -196,3 +197,47 @@ def crear_cumdist(datos):
         margin=dict(t=35, b=35, l=55, r=15),
         plot_bgcolor="rgba(0,0,0,0)")
     return cumdist
+
+
+def crear_mapa_wright(datos_puntaje: pd.DataFrame, datos_items: pd.DataFrame) -> go.Figure:
+    """Crea un mapa de Wright con datos de puntaje de personas y dificultad de ítems"""
+    datos_puntaje["eje"] = 0
+    datos_items["eje"]   = 0
+    
+    mapa_wright=go.Figure()
+    mapa_wright.add_trace(go.Violin(
+        x=datos_puntaje["eje"],
+        y=datos_puntaje["theta"], 
+        name="Personas",
+        side="negative",
+        fillcolor="#bde0fe",
+        line_color="#68b7fd",
+        width=3
+    ))
+    mapa_wright.add_trace(go.Violin(
+        x=datos_items["eje"],
+        y=datos_items["dificultad"], 
+        name='Items',
+        side="positive",
+        fillcolor="rgba(0, 0, 0, 0)",
+        line_color="rgba(0, 0, 0, 0)",
+        text=list(datos_items["id"]),
+        hoverinfo="text+y",
+        points="all", 
+        pointpos=0.05, 
+        jitter=0,
+        marker=dict(
+            color = "#f4a261", 
+            line=dict(
+                width=1, 
+                color="#777"),
+            size=12, 
+            symbol="triangle-left"),
+        width=0)
+    )
+    mapa_wright.update_layout(
+        violingap=0, 
+        violinmode='overlay',
+        margin=dict(t=35, b=35, l=55, r=15))
+    
+    return mapa_wright
