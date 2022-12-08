@@ -6,7 +6,8 @@ COLORES = ["#ff595e", "#ffca3a", "#8ac926", "#1982c4"]
  
  
 def crear_intervalos(datos: pd.DataFrame) -> pd.DataFrame:
-    """Agrega los límites inferior y superior del intervalo de confianza a un 
+    """Agrega los límites inferior y superior del puntaje a partir del error
+    de medición. 
     DataFrame con puntajes de persona y error de medición.
 
     Args:
@@ -15,10 +16,10 @@ def crear_intervalos(datos: pd.DataFrame) -> pd.DataFrame:
 
     Returns:
         pd.DataFrame: DataFrame `datos`con dos columnas adicionales, `lin_inf` 
-        y `lim_sup`, límite inferior y superior del intervalo de confianza, 
-        respectivamente.
+        y `lim_sup`, límite inferior y superior con respecto al error de 
+        medición, respectivamente.
     """
-    spread = datos["error"] * 1.96
+    spread = datos["error"]
     datos_intervalos = datos
     datos_intervalos["lim_inf"] = datos["theta"] - spread
     datos_intervalos["lim_sup"] = datos["theta"] + spread
@@ -64,8 +65,8 @@ def crear_grupos(datos: pd.DataFrame, puntos_corte: list) -> pd.Series:
  
  
 def obtener_empalmes(datos: pd.DataFrame, punto_corte: float) -> dict:
-    """"Calcula el numero de personas que tienen puntajes con intervalos de 
-    confianza empalmados con un punto de corte definido."""
+    """"Calcula el numero de personas que tienen puntajes cuyos límite iferior
+    y superior con respecto al error empalman con un punto de corte definido."""
     set_1 = datos[["lim_inf", "theta"]] > punto_corte
     set_1 = set_1.all(axis=1)
     set_2 = datos[["lim_sup", "theta"]] < punto_corte
@@ -83,8 +84,9 @@ def obtener_empalmes(datos: pd.DataFrame, punto_corte: float) -> dict:
  
  
 def df_empalmes(datos: pd.DataFrame, punto_corte: list) -> pd.DataFrame:
-    """"Calcula el numero de personas que tienen puntajes con intervalos de 
-    confianza empalmados con uno o más puntos de corte definidos.
+    """"Calcula el numero de personas que tienen puntajes cuyos límites superior
+    o infeerior con respecto al error de medición empalman con uno o más puntos 
+    de corte definidos.
 
     Args:
         datos (pd.DataFrame): DataFrame con columnas `theta`, `lim_inf` y 

@@ -3,7 +3,7 @@ import pandas as pd
 import punto_corte as pc
  
 st.set_page_config(page_title="Asistente para puntos de corte",
-                   page_icon=":shark:",
+                   page_icon=":bookmark_tabs:",
                    layout="centered",
                    initial_sidebar_state="auto",
                    menu_items=None)
