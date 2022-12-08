@@ -17,7 +17,10 @@ ruta_items   = ruta_ejemplo + "irt_items.csv"
 
 
 # Main
-tab_file, tab_vis = st.tabs(["Carga de archivo", "Visualización"])
+tab_file, tab_vis, tab_wright = st.tabs([
+    ":floppy_disk: Carga de archivo", 
+    ":bar_chart: Visualización",
+    ":scroll: Mapa de Wright"])
 tab_file.title("Elige tus archivos")
 
 with tab_file:
@@ -92,3 +95,8 @@ if archivo_score is not None:
 if archivo_items is not None:
     col_file_items.markdown("### Resumen de items")
     col_file_items.dataframe(items.describe())
+    
+if all([archivo_score, archivo_items]):
+    tab_wright.markdown("# Mapa de Wright")
+    mapa_wright = pc.crear_mapa_wright(scores, items)
+    tab_wright.plotly_chart(mapa_wright)
