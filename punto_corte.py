@@ -11,7 +11,7 @@ def crear_intervalos(datos: pd.DataFrame) -> pd.DataFrame:
     DataFrame con puntajes de persona y error de medición.
 
     Args:
-        datos (pd.DataFrame): DataFrame con una columna llamada `theta` y 
+        datos (pd.DataFrame): DataFrame con una columna llamada `puntaje` y 
         otra columna llamada `error`.
 
     Returns:
@@ -21,8 +21,8 @@ def crear_intervalos(datos: pd.DataFrame) -> pd.DataFrame:
     """
     spread = datos["error"]
     datos_intervalos = datos
-    datos_intervalos["lim_inf"] = datos["theta"] - spread
-    datos_intervalos["lim_sup"] = datos["theta"] + spread
+    datos_intervalos["lim_inf"] = datos["puntaje"] - spread
+    datos_intervalos["lim_sup"] = datos["puntaje"] + spread
     return datos_intervalos
  
  
@@ -35,17 +35,17 @@ def crear_grupos(datos: pd.DataFrame, puntos_corte: list) -> pd.Series:
     pequeño, se crea un grupo único.
 
     Args:
-        datos (pd.DataFrame): DataFrame con una columna llamada `theta` que 
+        datos (pd.DataFrame): DataFrame con una columna llamada `puntaje` que 
         contiene puntajes de personas.
         puntos_corte (list): Lista de puntos de corte.
 
     Returns:
-        pd.Series: Series que contiene los datos de la columna `theta` grupos 
+        pd.Series: Series que contiene los datos de la columna `puntaje` grupos 
         (bins) obtenidos.
         
     """
-    theta = datos["theta"]
-    puntos_corte = puntos_corte + [theta.min(), theta.max()]
+    puntaje = datos["puntaje"]
+    puntos_corte = puntos_corte + [puntaje.min(), puntaje.max()]
     # Flatten
     puntos_corte = [*set(puntos_corte)] 
     puntos_corte.sort()
@@ -53,23 +53,23 @@ def crear_grupos(datos: pd.DataFrame, puntos_corte: list) -> pd.Series:
     if num_grupos > 1:
         nombres = [f"Grupo {i+1}" for i in range(0, num_grupos)]
         grupos = pd.cut(
-            theta,
+            puntaje,
             puntos_corte,
             labels=nombres,
             include_lowest=True,
             duplicates="drop")
     else:
         nombres = ["Grupo único"]
-        grupos = pd.cut(theta, 1, labels = nombres)
+        grupos = pd.cut(puntaje, 1, labels = nombres)
     return grupos
  
  
 def obtener_empalmes(datos: pd.DataFrame, punto_corte: float) -> dict:
     """"Calcula el numero de personas que tienen puntajes cuyos límite iferior
     y superior con respecto al error empalman con un punto de corte definido."""
-    set_1 = datos[["lim_inf", "theta"]] > punto_corte
+    set_1 = datos[["lim_inf", "puntaje"]] > punto_corte
     set_1 = set_1.all(axis=1)
-    set_2 = datos[["lim_sup", "theta"]] < punto_corte
+    set_2 = datos[["lim_sup", "puntaje"]] < punto_corte
     set_2 = set_2.all(axis=1)
     personas = len(datos)
     empalmes = personas - sum(sum([set_1, set_2]))
@@ -89,7 +89,7 @@ def df_empalmes(datos: pd.DataFrame, punto_corte: list) -> pd.DataFrame:
     de corte definidos.
 
     Args:
-        datos (pd.DataFrame): DataFrame con columnas `theta`, `lim_inf` y 
+        datos (pd.DataFrame): DataFrame con columnas `puntaje`, `lim_inf` y 
         `lim_sup`.
         punto_corte (list): Valor de un punto de corte.
 
@@ -116,7 +116,7 @@ def crear_pay(datos_conteo: pd.DataFrame, colores: str=COLORES) -> go.Figure:
     pay = go.Figure(data=[
         go.Pie(
             labels=list(datos_conteo["grupos"]),
-            values=datos_conteo["theta"],
+            values=datos_conteo["puntaje"],
             textinfo="label+percent",
             textposition="inside",
             marker=dict(
@@ -130,12 +130,12 @@ def crear_pay(datos_conteo: pd.DataFrame, colores: str=COLORES) -> go.Figure:
     return pay
    
  
-def crear_dist(datos_scores: pd.DataFrame, puntos_corte: list) -> go.Figure:
+def crear_dist(datos_puntaje: pd.DataFrame, puntos_corte: list) -> go.Figure:
     """Genera una gráfica de violín que muestra la distribución de puntajes de 
     las personas y la posiciónd de los puntos de corte definidos.
 
     Args:
-        datos_scores (pd.DataFrame): DataFrame con columna `theta`.
+        datos_puntaje (pd.DataFrame): DataFrame con columna `puntaje`.
         puntos_corte (list): Puntos de corte definidos.
 
     Returns:
@@ -144,7 +144,7 @@ def crear_dist(datos_scores: pd.DataFrame, puntos_corte: list) -> go.Figure:
     dist = go.Figure()
     dist.add_trace(
         go.Violin(
-            x=datos_scores["theta"],
+            x=datos_puntaje["puntaje"],
             y0="Puntaje",
             line_color="#eeeeee", 
             fillcolor="#bde0fe",
@@ -168,12 +168,12 @@ def crear_dist(datos_scores: pd.DataFrame, puntos_corte: list) -> go.Figure:
 
 def crear_cumdist(datos: pd.DataFrame) -> go.Figure:
     """Crea una gráfica de distribución acumulada de puntajes"""
-    datos_orden = datos.sort_values("theta", ignore_index=True).reset_index()
+    datos_orden = datos.sort_values("puntaje", ignore_index=True).reset_index()
     cumdist = go.Figure()
     cumdist.add_trace(go.Scatter(
-        name="Theta",
+        name="Puntaje",
         x=datos_orden["index"],
-        y=datos_orden["theta"],
+        y=datos_orden["puntaje"],
         mode="lines",
         marker=dict(color="rgba(110, 120, 135, 255)")))
     cumdist.add_trace(go.Scatter(
@@ -209,7 +209,7 @@ def crear_mapa_wright(datos_puntaje: pd.DataFrame, datos_items: pd.DataFrame) ->
     mapa_wright=go.Figure()
     mapa_wright.add_trace(go.Violin(
         x=datos_puntaje["eje"],
-        y=datos_puntaje["theta"], 
+        y=datos_puntaje["puntaje"], 
         name="Personas",
         side="negative",
         fillcolor="#bde0fe",

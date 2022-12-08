@@ -8,11 +8,11 @@ st.set_page_config(page_title="Asistente para puntos de corte",
                    initial_sidebar_state="auto",
                    menu_items=None)
   
-archivo_score = None
+archivo_puntaje = None
 archivo_items = None
 
 ruta_ejemplo = "https://raw.githubusercontent.com/jboscomendoza/pypuntocorte/main/"
-ruta_scores  = ruta_ejemplo + "irt_dummy.csv"
+ruta_puntaje  = ruta_ejemplo + "irt_puntaje.csv"
 ruta_items   = ruta_ejemplo + "irt_items.csv"
 
 
@@ -24,19 +24,19 @@ tab_file, tab_vis, tab_wright = st.tabs([
 tab_file.title("Elige tus archivos")
 
 with tab_file:
-    col_file_score, col_file_items = st.columns(2)
+    col_file_puntaje, col_file_items = st.columns(2)
 
-if archivo_score is None:    
-    col_file_score.subheader("Puntajes")
-    archivo_score = col_file_score.file_uploader(
-        "Elige un archivo con columnas `theta` y `error`",
+if archivo_puntaje is None:    
+    col_file_puntaje.subheader("puntaje")
+    archivo_puntaje = col_file_puntaje.file_uploader(
+        "Elige un archivo con columnas `puntaje` y `error`",
         type=["csv"])
-    col_file_score.markdown(f":floppy_disk: [Archivo muestra]({ruta_scores})")
-if archivo_score is not None:
-    scores = pd.read_csv(archivo_score)
-    scores = pc.crear_intervalos(scores)
-    theta_min = scores["theta"].min()
-    theta_max = scores["theta"].max()
+    col_file_puntaje.markdown(f":floppy_disk: [Archivo muestra]({ruta_puntaje})")
+if archivo_puntaje is not None:
+    puntaje = pd.read_csv(archivo_puntaje)
+    puntaje = pc.crear_intervalos(puntaje)
+    puntaje_min = puntaje["puntaje"].min()
+    puntaje_max = puntaje["puntaje"].max()
               
 if archivo_items is None:
     col_file_items.subheader("Items")
@@ -48,7 +48,7 @@ if archivo_items is not None:
     items = pd.read_csv(archivo_items)
 
 
-if archivo_score is not None:
+if archivo_puntaje is not None:
     st.sidebar.title("Puntos de corte")
     contadores = st.sidebar.slider(
         "Número de cortes", 
@@ -60,25 +60,25 @@ if archivo_score is not None:
         nombre_corte = f"Punto de corte {i+1}"
         clave = f"corte{i+1}"
         st.sidebar.number_input(nombre_corte, 
-                                value=theta_min,
-                                min_value=theta_min, 
-                                max_value=theta_max, 
+                                value=puntaje_min,
+                                min_value=puntaje_min, 
+                                max_value=puntaje_max, 
                                 key=clave)
    
     cortes = [st.session_state[f"corte{j+1}"] for j in range(contadores)]
 
-    scores["grupos"] = pc.crear_grupos(scores, cortes)
-    grupos_conteo = scores.groupby("grupos", as_index=False)["theta"].count()
+    puntaje["grupos"] = pc.crear_grupos(puntaje, cortes)
+    grupos_conteo = puntaje.groupby("grupos", as_index=False)["puntaje"].count()
  
-    dist = pc.crear_dist(scores, cortes)
+    dist = pc.crear_dist(puntaje, cortes)
     pay = pc.crear_pay(grupos_conteo)
     
-    col_file_score.markdown("### Resumen de los puntajes")
-    col_file_score.dataframe(scores.describe())
+    col_file_puntaje.markdown("### Resumen de los puntaje")
+    col_file_puntaje.dataframe(puntaje.describe())
             
     with tab_file:
-        st.markdown("### Distribución acumulada de los puntajes")
-        st.plotly_chart(pc.crear_cumdist(scores))
+        st.markdown("### Distribución acumulada de los puntaje")
+        st.plotly_chart(pc.crear_cumdist(puntaje))
 
     with tab_vis:
         st.subheader("Distribución")
@@ -90,13 +90,13 @@ if archivo_score is not None:
             st.plotly_chart(pay, use_container_width=True)
         with col2:
             st.subheader("Empalmes")
-            st.table(pc.df_empalmes(scores, cortes))
+            st.table(pc.df_empalmes(puntaje, cortes))
 
 if archivo_items is not None:
     col_file_items.markdown("### Resumen de items")
     col_file_items.dataframe(items.describe())
     
-if all([archivo_score, archivo_items]):
+if all([archivo_puntaje, archivo_items]):
     tab_wright.markdown("# Mapa de Wright")
-    mapa_wright = pc.crear_mapa_wright(scores, items)
+    mapa_wright = pc.crear_mapa_wright(puntaje, items)
     tab_wright.plotly_chart(mapa_wright)
