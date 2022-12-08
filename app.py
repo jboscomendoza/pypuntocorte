@@ -8,26 +8,50 @@ st.set_page_config(page_title="Asistente para puntos de corte",
                    initial_sidebar_state="auto",
                    menu_items=None)
   
+archivo_score = None
+archivo_items = None
+
+ruta_ejemplo = "https://raw.githubusercontent.com/jboscomendoza/pypuntocorte/main/"
+ruta_scores  = ruta_ejemplo + "irt_dummy.csv"
+ruta_items   = ruta_ejemplo + "irt_items.csv"
+
+
 # Main
-archivo = None
 tab_file, tab_vis = st.tabs(["Carga de archivo", "Visualización"])
+tab_file.title("Elige tus archivos")
 
-if archivo is None:
-    with tab_file:
-        st.title("Elige un archivo para iniciar")
-        st.subheader("Archivo")
-        archivo = tab_file.file_uploader("Elige un archivo con columnas theta y error", type=["csv"])
-        st.markdown(":floppy_disk: [Archivo muestra](https://raw.githubusercontent.com/jboscomendoza/pypuntocorte/main/irt_dummy.csv)")
-        if archivo is not None:
-            scores = pd.read_csv(archivo)
-            scores = pc.crear_intervalos(scores)
-            theta_min = scores["theta"].min()
-            theta_max = scores["theta"].max()
-        
+with tab_file:
+    col_file_score, col_file_items = st.columns(2)
 
-if archivo is not None:
+if archivo_score is None:    
+    col_file_score.subheader("Puntajes")
+    archivo_score = col_file_score.file_uploader(
+        "Elige un archivo con columnas `theta` y `error`",
+        type=["csv"])
+    col_file_score.markdown(f":floppy_disk: [Archivo muestra]({ruta_scores})")
+if archivo_score is not None:
+    scores = pd.read_csv(archivo_score)
+    scores = pc.crear_intervalos(scores)
+    theta_min = scores["theta"].min()
+    theta_max = scores["theta"].max()
+              
+if archivo_items is None:
+    col_file_items.subheader("Items")
+    archivo_items = col_file_items.file_uploader(
+        "Elige un archivo con columnas `id` y `dificultad`",
+        type=["csv"])
+col_file_items.markdown(f":floppy_disk: [Archivo muestra]({ruta_items})")
+if archivo_items is not None:
+    items = pd.read_csv(archivo_items)
+
+
+if archivo_score is not None:
     st.sidebar.title("Puntos de corte")
-    contadores = st.sidebar.slider("Número de cortes", value=1, min_value=1, max_value=3)
+    contadores = st.sidebar.slider(
+        "Número de cortes", 
+        value=1, 
+        min_value=1, 
+        max_value=3)
     
     for i in range(contadores):
         nombre_corte = f"Punto de corte {i+1}"
@@ -46,9 +70,10 @@ if archivo is not None:
     dist = pc.crear_dist(scores, cortes)
     pay = pc.crear_pay(grupos_conteo)
     
+    col_file_score.markdown("### Resumen de los puntajes")
+    col_file_score.dataframe(scores.describe())
+            
     with tab_file:
-        st.markdown("### Resumen de los puntajes")
-        st.dataframe(scores.describe())
         st.markdown("### Distribución acumulada de los puntajes")
         st.plotly_chart(pc.crear_cumdist(scores))
 
@@ -63,3 +88,7 @@ if archivo is not None:
         with col2:
             st.subheader("Empalmes")
             st.table(pc.df_empalmes(scores, cortes))
+
+if archivo_items is not None:
+    col_file_items.markdown("### Resumen de items")
+    col_file_items.dataframe(items.describe())
