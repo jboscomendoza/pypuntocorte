@@ -34,10 +34,15 @@ if archivo_puntaje is None:
     col_file_puntaje.markdown(f":floppy_disk: [Archivo muestra]({ruta_puntaje})")
 if archivo_puntaje is not None:
     puntaje = pd.read_csv(archivo_puntaje)
+    puntaje_check = pc.es_valido(puntaje, "puntaje")
+    if not puntaje_check["es_valido"]:
+        col_file_puntaje.markdown(puntaje_check["mensaje"])
+        st.stop()    
+    col_file_puntaje.markdown(puntaje_check["mensaje"])
     puntaje = pc.crear_intervalos(puntaje)
     puntaje_min = puntaje["puntaje"].min()
     puntaje_max = puntaje["puntaje"].max()
-              
+   
 if archivo_items is None:
     col_file_items.subheader("Items")
     archivo_items = col_file_items.file_uploader(
@@ -46,7 +51,11 @@ if archivo_items is None:
 col_file_items.markdown(f":floppy_disk: [Archivo muestra]({ruta_items})")
 if archivo_items is not None:
     items = pd.read_csv(archivo_items)
-
+    items_check = pc.es_valido(items, "items")
+    if not items_check["es_valido"]:
+        st.stop() 
+    col_file_items.markdown(items_check["mensaje"])
+        
 
 if archivo_puntaje is not None:
     st.sidebar.title("Puntos de corte")
