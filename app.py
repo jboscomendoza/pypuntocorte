@@ -59,9 +59,13 @@ if archivo_items is not None:
         
 
 if archivo_puntaje is not None:
-    st.sidebar.title("Puntos de corte")
-    contadores = st.sidebar.slider(
-        "Número de cortes", 
+    tab_vis.markdown(u"### Puntos de corte")
+    
+    with tab_vis:
+        col_corte1, col_corte2 = st.columns(2)
+    
+    contadores = col_corte1.slider(
+        u"Número de cortes", 
         value=1, 
         min_value=1, 
         max_value=3)
@@ -69,7 +73,7 @@ if archivo_puntaje is not None:
     for i in range(contadores):
         nombre_corte = f"Punto de corte {i+1}"
         clave = f"corte{i+1}"
-        st.sidebar.number_input(nombre_corte, 
+        col_corte2.number_input(nombre_corte, 
                                 value=puntaje_min,
                                 min_value=puntaje_min, 
                                 max_value=puntaje_max, 
@@ -83,22 +87,22 @@ if archivo_puntaje is not None:
     dist = pc.crear_dist(puntaje, cortes)
     pay = pc.crear_pay(grupos_conteo)
     
-    tab_data.markdown("### Resumen de los puntajes")
+    tab_data.markdown(u"### Resumen de los puntajes")
     tab_data.table(puntaje.describe())
-    tab_data.markdown("### Distribución acumulada de los puntajes")
+    tab_data.markdown(u"### Distribución acumulada de los puntajes")
     tab_data.plotly_chart(pc.crear_cumdist(puntaje, "puntaje"))
     
 
     with tab_vis:
-        st.subheader("Distribución")
+        st.markdown(u"### Distribución")
         st.plotly_chart(dist, use_container_width=True)
 
         col1, col2 = st.columns([1, 1.5])
         with col1:
-            st.subheader("Proporción")
+            st.markdown(u"### Proporción")
             st.plotly_chart(pay, use_container_width=True)
         with col2:
-            st.subheader("Empalmes")
+            st.markdown(u"### Empalmes")
             st.table(pc.df_empalmes(puntaje, cortes))
 
 if archivo_items is not None:
