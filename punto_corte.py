@@ -6,7 +6,7 @@ COLORES = ["#ff595e", "#ffca3a", "#8ac926", "#1982c4"]
  
  
 def crear_intervalos(datos: pd.DataFrame) -> pd.DataFrame:
-    """Agrega los límites inferior y superior del puntaje a partir del error
+    u"""Agrega los límites inferior y superior del puntaje a partir del error
     de medición. 
     DataFrame con puntajes de persona y error de medición.
 
@@ -27,7 +27,7 @@ def crear_intervalos(datos: pd.DataFrame) -> pd.DataFrame:
  
  
 def crear_grupos(datos: pd.DataFrame, puntos_corte: list) -> pd.Series:
-    """Crea una columna que clasifica valores en grupos (bins) a partir de 
+    u"""Crea una columna que clasifica valores en grupos (bins) a partir de 
     puntos de corte definidos.
     
     Si no es posible crear al menos dos grupos con los puntos de corte 
@@ -65,7 +65,7 @@ def crear_grupos(datos: pd.DataFrame, puntos_corte: list) -> pd.Series:
  
  
 def obtener_empalmes(datos: pd.DataFrame, punto_corte: float) -> dict:
-    """"Calcula el numero de personas que tienen puntajes cuyos límite iferior
+    u""""Calcula el numero de personas que tienen puntajes cuyos límite iferior
     y superior con respecto al error empalman con un punto de corte definido."""
     set_1 = datos[["lim_inf", "puntaje"]] > punto_corte
     set_1 = set_1.all(axis=1)
@@ -84,7 +84,7 @@ def obtener_empalmes(datos: pd.DataFrame, punto_corte: float) -> dict:
  
  
 def df_empalmes(datos: pd.DataFrame, punto_corte: list) -> pd.DataFrame:
-    """"Calcula el numero de personas que tienen puntajes cuyos límites superior
+    u""""Calcula el numero de personas que tienen puntajes cuyos límites superior
     o infeerior con respecto al error de medición empalman con uno o más puntos 
     de corte definidos.
 
@@ -103,7 +103,7 @@ def df_empalmes(datos: pd.DataFrame, punto_corte: list) -> pd.DataFrame:
  
  
 def crear_pay(datos_conteo: pd.DataFrame, colores: str=COLORES) -> go.Figure:
-    """Genera una gráfica de pastel con el conteo de personas que fueron asignadas 
+    u"""Genera una gráfica de pastel con el conteo de personas que fueron asignadas 
     a cada grupo a partir de puntos de corte definidos.
 
     Args:
@@ -131,7 +131,7 @@ def crear_pay(datos_conteo: pd.DataFrame, colores: str=COLORES) -> go.Figure:
    
  
 def crear_dist(datos_puntaje: pd.DataFrame, puntos_corte: list) -> go.Figure:
-    """Genera una gráfica de violín que muestra la distribución de puntajes de 
+    u"""Genera una gráfica de violín que muestra la distribución de puntajes de 
     las personas y la posiciónd de los puntos de corte definidos.
 
     Args:
@@ -166,33 +166,50 @@ def crear_dist(datos_puntaje: pd.DataFrame, puntos_corte: list) -> go.Figure:
     return dist
 
 
-def crear_cumdist(datos: pd.DataFrame) -> go.Figure:
-    """Crea una gráfica de distribución acumulada de puntajes"""
-    datos_orden = datos.sort_values("puntaje", ignore_index=True).reset_index()
+def crear_cumdist(datos: pd.DataFrame, tipo: str) -> go.Figure:
+    u"""Crea una gráfica de distribución acumulada, tipo puede ser uno de 
+    'puntaje' o 'items'."""
+    
+    partes=dict(
+        puntaje=dict(
+            columna="puntaje",
+            modo="lines"
+        ),
+        items=dict(
+            columna="dificultad",
+            modo="markers"
+        )
+    )
+          
+    texto = datos["id"] if tipo == "items" else None
+    
+    datos_orden = datos.sort_values(partes[tipo]["columna"], ignore_index=True).reset_index()
     cumdist = go.Figure()
     cumdist.add_trace(go.Scatter(
-        name="Puntaje",
+        name=tipo.capitalize(),
         x=datos_orden["index"],
-        y=datos_orden["puntaje"],
-        mode="lines",
+        y=datos_orden[partes[tipo]["columna"]],
+        text=texto,
+        mode=partes[tipo]["modo"],
         marker=dict(color="rgba(110, 120, 135, 255)")))
-    cumdist.add_trace(go.Scatter(
-        name="Límite superior",
-        x=datos_orden["index"],
-        y=datos_orden["lim_sup"],
-        mode="lines",
-        line=dict(width=0),
-        marker=dict(color="rgba(210, 210, 220, 40)"),
-        showlegend=False))
-    cumdist.add_trace(go.Scatter(
-        name="Límite inferior",
-        x=datos_orden["index"],
-        y=datos_orden["lim_inf"],
-        mode="lines",
-        line=dict(width=0),
-        marker=dict(color="rgba(210, 210, 220, 40)"),
-        showlegend=False,
-        fill="tonexty"))
+    if tipo == "puntaje":
+        cumdist.add_trace(go.Scatter(
+            name="Límite superior",
+            x=datos_orden["index"],
+            y=datos_orden["lim_sup"],
+            mode="lines",
+            line=dict(width=0),
+            marker=dict(color="rgba(210, 210, 220, 40)"),
+            showlegend=False))
+        cumdist.add_trace(go.Scatter(
+            name="Límite inferior",
+            x=datos_orden["index"],
+            y=datos_orden["lim_inf"],
+            mode="lines",
+            line=dict(width=0),
+            marker=dict(color="rgba(210, 210, 220, 40)"),
+            showlegend=False,
+            fill="tonexty"))
     cumdist.update_layout(
         hovermode="x",
         height=320,
@@ -202,7 +219,7 @@ def crear_cumdist(datos: pd.DataFrame) -> go.Figure:
 
 
 def crear_mapa_wright(datos_puntaje: pd.DataFrame, datos_items: pd.DataFrame) -> go.Figure:
-    """Crea un mapa de Wright con datos de puntaje de personas y dificultad de ítems"""
+    u"""Crea un mapa de Wright con datos de puntaje de personas y dificultad de items"""
     datos_puntaje["eje"] = 0
     datos_items["eje"]   = 0
     
@@ -246,11 +263,11 @@ def crear_mapa_wright(datos_puntaje: pd.DataFrame, datos_items: pd.DataFrame) ->
 
 
 def es_valido(datos: pd.DataFrame, tipo: str) -> dict:
-    """Valida los datos cargados
+    u"""Valida los datos cargados.
 
     Args:
-        datos (pd.DataFrame): Dataframe con datos a validar
-        tipo (str): Uno de 'puntaje' o 'items'
+        datos (pd.DataFrame): Dataframe con datos a validar.
+        tipo (str): Uno de 'puntaje' o 'items'.
 
     Returns:
         dict: Diccionario con elementos: 'es_valido' (bool) y 'mensaje' (str) 

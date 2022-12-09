@@ -17,10 +17,11 @@ ruta_items   = ruta_ejemplo + "irt_items.csv"
 
 
 # Main
-tab_file, tab_vis, tab_wright = st.tabs([
-    ":floppy_disk: Carga de archivos", 
-    ":bar_chart: Visualización",
-    ":scroll: Mapa de Wright"])
+tab_file, tab_data, tab_vis, tab_wright = st.tabs([
+    u":file_folder: Carga de archivos", 
+    u":ledger: Resumen de datos",
+    u":bar_chart: Visualización",
+    u":scroll: Mapa de Wright"])
 tab_file.title("Elige tus archivos")
 
 with tab_file:
@@ -82,12 +83,11 @@ if archivo_puntaje is not None:
     dist = pc.crear_dist(puntaje, cortes)
     pay = pc.crear_pay(grupos_conteo)
     
-    col_file_puntaje.markdown("### Resumen de los puntajes")
-    col_file_puntaje.dataframe(puntaje.describe())
-            
-    with tab_file:
-        st.markdown("### Distribución acumulada de los puntajes")
-        st.plotly_chart(pc.crear_cumdist(puntaje))
+    tab_data.markdown("### Resumen de los puntajes")
+    tab_data.table(puntaje.describe())
+    tab_data.markdown("### Distribución acumulada de los puntajes")
+    tab_data.plotly_chart(pc.crear_cumdist(puntaje, "puntaje"))
+    
 
     with tab_vis:
         st.subheader("Distribución")
@@ -102,9 +102,12 @@ if archivo_puntaje is not None:
             st.table(pc.df_empalmes(puntaje, cortes))
 
 if archivo_items is not None:
-    col_file_items.markdown("### Resumen de items")
-    col_file_items.dataframe(items.describe())
+    tab_data.markdown("### Resumen de los items")
+    tab_data.table(items.describe())
+    tab_data.markdown("### Distribución de dificultad")
+    tab_data.plotly_chart(pc.crear_cumdist(items, "items"))
     
+
 if all([archivo_puntaje, archivo_items]):
     tab_wright.markdown("# Mapa de Wright")
     mapa_wright = pc.crear_mapa_wright(puntaje, items)
