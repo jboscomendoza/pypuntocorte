@@ -245,23 +245,45 @@ def crear_mapa_wright(datos_puntaje: pd.DataFrame, datos_items: pd.DataFrame) ->
     return mapa_wright
 
 
+def es_valido(datos: pd.DataFrame, tipo: str) -> dict:
+    """Valida los datos cargados
 
-def es_valido_puntaje(file, cols=["puntaje", "error"]):
-    """Valida el archido de puntaje"""
-    valido = dict()
-    mensaje_error_columnas = u"El archivo debe incluir columnas llamadas puntaje y error"
-    mensaje_no_numerico = u"Las columnas puntaje y error deben ser numéricas"
+    Args:
+        datos (pd.DataFrame): Dataframe con datos a validar
+        tipo (str): Uno de 'puntaje' o 'items'
+
+    Returns:
+        dict: Diccionario con elementos: 'es_valido' (bool) y 'mensaje' (str) 
+        que informan del resultado de validación.
+    """
+    valoracion = dict(es_valido=False, mensaje=u"Archivo inválido")
+    elem = dict(nombres=[], debe_numerico=[])
+
+    if tipo == "puntaje":
+        elem["nombres"] = ["puntaje", "error"]
+        elem["debe_numerico"] = ["puntaje", "error"]
+    elif tipo == "items":
+        elem["nombres"] = ["dificultad", "id"]
+        elem["debe_numerico"] = ["dificultad"]
+    
+    nombre_cols = ", ".join(elem["nombres"])
+    
     try:
-        file[cols]
+        datos[elem["nombres"]]
         pass
-    except KeyError: 
-        valido = dict(es_valido=False, 
-                      mensaje=mensaje_error_columnas)
-        return valido
+    except KeyError:
+        valoracion["mensaje"] = u"El archivo debe incluir columnas llamadas: " + nombre_cols
+        return valoracion
     
-    es_valido = all(i == "float64" for i in file[cols].dtypes)
-    mensaje_valido = u"Archivo válido" if es_valido else mensaje_no_numerico
+    if not all(i == "float64" for i in datos[elem["debe_numerico"]].dtypes):
+        valoracion["mensaje"] = u"Las columnas puntaje y error deben ser numéricas"
+        return valoracion 
+        
+    if tipo == "items" and not datos["id"].is_unique:
+        valoracion["mensaje"] = u"Los valores de id deben ser únicos"
+        return valoracion
     
-    valido = dict(es_valido=es_valido, mensaje=mensaje_valido)    
-     
-    return valido
+    valoracion["es_valido"] = True
+    valoracion["mensaje"] = u"Archivo válido"
+    
+    return valoracion
