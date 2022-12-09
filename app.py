@@ -18,7 +18,7 @@ ruta_items   = ruta_ejemplo + "irt_items.csv"
 
 # Main
 tab_file, tab_vis, tab_wright = st.tabs([
-    ":floppy_disk: Carga de archivo", 
+    ":floppy_disk: Carga de archivos", 
     ":bar_chart: Visualización",
     ":scroll: Mapa de Wright"])
 tab_file.title("Elige tus archivos")
@@ -27,7 +27,7 @@ with tab_file:
     col_file_puntaje, col_file_items = st.columns(2)
 
 if archivo_puntaje is None:    
-    col_file_puntaje.subheader("puntaje")
+    col_file_puntaje.subheader("Puntajes")
     archivo_puntaje = col_file_puntaje.file_uploader(
         "Elige un archivo con columnas `puntaje` y `error`",
         type=["csv"])
@@ -73,11 +73,11 @@ if archivo_puntaje is not None:
     dist = pc.crear_dist(puntaje, cortes)
     pay = pc.crear_pay(grupos_conteo)
     
-    col_file_puntaje.markdown("### Resumen de los puntaje")
+    col_file_puntaje.markdown("### Resumen de los puntajes")
     col_file_puntaje.dataframe(puntaje.describe())
             
     with tab_file:
-        st.markdown("### Distribución acumulada de los puntaje")
+        st.markdown("### Distribución acumulada de los puntajes")
         st.plotly_chart(pc.crear_cumdist(puntaje))
 
     with tab_vis:

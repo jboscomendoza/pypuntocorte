@@ -243,3 +243,25 @@ def crear_mapa_wright(datos_puntaje: pd.DataFrame, datos_items: pd.DataFrame) ->
         margin=dict(t=35, b=35, l=55, r=15))
     
     return mapa_wright
+
+
+
+def es_valido_puntaje(file, cols=["puntaje", "error"]):
+    """Valida el archido de puntaje"""
+    valido = dict()
+    mensaje_error_columnas = u"El archivo debe incluir columnas llamadas puntaje y error"
+    mensaje_no_numerico = u"Las columnas puntaje y error deben ser numéricas"
+    try:
+        file[cols]
+        pass
+    except KeyError: 
+        valido = dict(es_valido=False, 
+                      mensaje=mensaje_error_columnas)
+        return valido
+    
+    es_valido = all(i == "float64" for i in file[cols].dtypes)
+    mensaje_valido = u"Archivo válido" if es_valido else mensaje_no_numerico
+    
+    valido = dict(es_valido=es_valido, mensaje=mensaje_valido)    
+     
+    return valido
