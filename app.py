@@ -2,18 +2,25 @@ import streamlit as st
 import pandas as pd
 import punto_corte as pc
  
+
 st.set_page_config(page_title="Asistente para puntos de corte",
                    page_icon=":bookmark_tabs:",
                    layout="centered",
                    initial_sidebar_state="auto",
                    menu_items=None)
-  
+
+
+# Inicio de sesion compartida
+if "shared" not in st.session_state:
+   st.session_state["shared"] = True
+
+ 
 archivo_puntaje = None
 archivo_items = None
 
-ruta_ejemplo = "https://raw.githubusercontent.com/jboscomendoza/pypuntocorte/main/"
-ruta_puntaje  = ruta_ejemplo + "irt_puntaje.csv"
-ruta_items   = ruta_ejemplo + "irt_items.csv"
+RUTA_EJEMPLO = "https://raw.githubusercontent.com/jboscomendoza/pypuntocorte/main/"
+RUTA_PUNTAJE  = RUTA_EJEMPLO + "irt_puntaje.csv"
+RUTA_ITEMS    = RUTA_EJEMPLO + "irt_items.csv"
 
 
 # Main
@@ -32,7 +39,9 @@ if archivo_puntaje is None:
     archivo_puntaje = col_file_puntaje.file_uploader(
         "Elige un archivo con columnas `puntaje` y `error`",
         type=["csv"])
-    col_file_puntaje.markdown(f":floppy_disk: [Archivo muestra]({ruta_puntaje})")
+    col_file_puntaje.markdown(f":floppy_disk: [Archivo muestra]({RUTA_PUNTAJE})")
+    st.session_state["archivo_puntaje"] = archivo_puntaje
+    
 if archivo_puntaje is not None:
     puntaje = pd.read_csv(archivo_puntaje)
     puntaje_check = pc.es_valido(puntaje, "puntaje")
@@ -43,13 +52,14 @@ if archivo_puntaje is not None:
     puntaje = pc.crear_intervalos(puntaje)
     puntaje_min = puntaje["puntaje"].min()
     puntaje_max = puntaje["puntaje"].max()
-   
+    st.session_state["puntaje"] = puntaje
+       
 if archivo_items is None:
     col_file_items.subheader("Items")
     archivo_items = col_file_items.file_uploader(
         "Elige un archivo con columnas `id` y `dificultad`",
         type=["csv"])
-col_file_items.markdown(f":floppy_disk: [Archivo muestra]({ruta_items})")
+col_file_items.markdown(f":floppy_disk: [Archivo muestra]({RUTA_ITEMS})")
 if archivo_items is not None:
     items = pd.read_csv(archivo_items)
     items_check = pc.es_valido(items, "items")
