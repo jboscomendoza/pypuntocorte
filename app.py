@@ -24,9 +24,8 @@ RUTA_ITEMS    = RUTA_EJEMPLO + "irt_items.csv"
 
 
 # Main
-tab_file, tab_data, tab_vis, tab_wright = st.tabs([
+tab_file, tab_vis, tab_wright = st.tabs([
     u":file_folder: Carga de archivos", 
-    u":ledger: Resumen de datos",
     u":bar_chart: Visualización",
     u":scroll: Mapa de Wright"])
 tab_file.title("Elige tus archivos")
@@ -66,6 +65,7 @@ if archivo_items is not None:
     if not items_check["es_valido"]:
         st.stop() 
     col_file_items.markdown(items_check["mensaje"])
+    st.session_state["items"] = items
         
 
 if archivo_puntaje is not None:
@@ -97,12 +97,7 @@ if archivo_puntaje is not None:
     dist = pc.crear_dist(puntaje, cortes)
     pay = pc.crear_pay(grupos_conteo)
     
-    tab_data.markdown(u"### Resumen de los puntajes")
-    tab_data.table(puntaje.describe())
-    tab_data.markdown(u"### Distribución acumulada de los puntajes")
-    tab_data.plotly_chart(pc.crear_cumdist(puntaje, "puntaje"))
     
-
     with tab_vis:
         st.markdown(u"### Distribución")
         st.plotly_chart(dist, use_container_width=True)
@@ -114,12 +109,6 @@ if archivo_puntaje is not None:
         with col2:
             st.markdown(u"### Empalmes")
             st.table(pc.df_empalmes(puntaje, cortes))
-
-if archivo_items is not None:
-    tab_data.markdown("### Resumen de los items")
-    tab_data.table(items.describe())
-    tab_data.markdown("### Distribución de dificultad")
-    tab_data.plotly_chart(pc.crear_cumdist(items, "items"))
     
 
 if all([archivo_puntaje, archivo_items]):
